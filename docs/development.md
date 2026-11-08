@@ -5,6 +5,17 @@ Execute `pytest -q`, `ruff check .`, `ruff format --check .` e `python -m build`
 Use `QT_QPA_PLATFORM=offscreen` em testes de interface sem display; isso verifica widgets,
 mas não substitui validação interativa em KDE/Wayland.
 
+Na CI Ubuntu, o workflow instala `libegl1`, `libgl1`, `libxkbcommon0` e
+`libfontconfig1` antes das dependências Python. São bibliotecas de execução para
+EGL, OpenGL, teclado e fontes carregadas pelo QtGui e pelo plugin offscreen.
+`QT_QPA_PLATFORM=offscreen` dispensa um monitor, mas não essas bibliotecas nativas;
+os wheels PySide6 não substituem todas as dependências do sistema. Veja os
+[requisitos oficiais do Qt para Linux](https://doc.qt.io/qt-6/linux-requirements.html)
+e o [pacote EGL do Ubuntu](https://packages.ubuntu.com/noble/libegl1).
+A instalação por `apt-get` é exclusiva do runner Ubuntu, sem alterar o procedimento
+de instalação no Arch/CachyOS. A matriz mantém Python 3.12 e 3.14 e usa
+`fail-fast: false` para que uma falha não cancele a verificação da outra versão.
+
 Fixtures devem ser sintéticas. Injete provedores no ScanService ou runner falso nas
 implementações. Nunca execute pacman modificador para preparar testes. A demonstração
 usa o mesmo modelo e analisador do aplicativo, com marcação explícita de simulação.
